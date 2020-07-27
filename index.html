@@ -1,48 +1,87 @@
 <!DOCTYPE html>
 <html>
-<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.2.0/papaparse.min.js"></script>
 <body>
-
-<div ng-app="JsonFormatter" ng-controller='myCtrl'>
- 
-<div ng-show="error" class="alert alert-danger">
-  <strong>{{error_name}}! </strong> {{error_message}}
-</div>
-
-<div class="form-group col-md-6 col-xs-12">
-	<textarea class="form-control" rows="30" ng-model="input" ng-change='updateOutput()'         ng-model-options='{ debounce: 2000 }' placeholder="Input JSON here" 
-></textarea>	
-</div>
-<div class="form-group col-md-6 col-xs-12">
-	<textarea class="form-control formtext" rows="30" ng-bind="output"></textarea>	
-</div>
-
-</div>
-
+	<div class="container">
+		<center><h1>Converter (csv/json)</h1></center>
+		<div class="row">
+			<br/>
+			<div class="col-md-6 col-sm-12 col-lg-6">
+				<h2>Json to csv converter</h2>
+				<div class="row">
+					<textarea rows="20" cols="65" id="jsonIntput" placeholder="Enter json, key='name_of _col' value='row_value',  Enter arrray of objects in case of multiple rows"></textarea>
+				</div>
+				<div class="row">
+					<button class="btn btn-primary" id="convertJsonToCsv">Convert and download</button>
+				</div>
+			</div>
+			<div class="col-md-6 col-sm-12 col-lg-6">
+				<h2>Csv to json converter</h2>
+				<div class="row">
+					<input type="file" id="fileUpload">Upload</input>
+				</div>
+				<div class="row">
+					<textarea rows="20" cols="65" id="jsonOutput" placeholder="Your json"></textarea>
+				</div>
+			</div>
+		</div>
+	</div>
 </body>
 </html>
 <script type="text/javascript">
-	var app = angular.module("JsonFormatter",[]);
-	app.controller('myCtrl', function($scope){
-		$scope.updateOutput = function(){
-			$scope.error = false;
-			$scope.error_message = "";
-			$scope.error_name = "";
-			try{
-				json = JSON.stringify(JSON.parse($scope.input),null,2); 
-				$scope.output = json;
-				$scope.showCopyBtn = true;
+	$("#convertJsonToCsv").click(function() {
+	 	console.log("click")
+	 	var jsonString = $("#jsonIntput").val()
+	 	var json = JSON.parse(jsonString)
+
+	 	var jsonArray = []
+	 	if(Array.isArray(json)){
+	 		json.map((row, key)=>{
+	 			jsonArray.push(row)
+	 		})
+	 	}
+	 	else{
+	 		jsonArray.push(json)
+	 	}
+	 	console.log(jsonArray)
+ 		let csv = Papa.unparse(jsonArray, {download: true});
+		let blob = new Blob([csv]);
+		let a = window.document.createElement("a");
+		a.href = window.URL.createObjectURL(blob, {type: "text/plain"});
+		a.download = "convertedcsv.csv";
+		document.body.appendChild(a);
+		a.click();
+		document.body.removeChild(a);
+	});
+
+	$("#fileUpload").change(function(event){
+		console.log(event.target.files[0])
+		var file = event.target.files[0]
+		Papa.parse(file, {
+			complete: function(results) {
+				console.log("Finished:", results.data);
+				var data = results.data
+				var columnsArray = data[0]
+
+				var jsonArray = []
+				data.map((row, rowIndex)=>{
+					if(rowIndex != 0){
+						var object = {}
+						columnsArray.map((colName, colIndex)=>{
+							object[colName] = row[colIndex]
+						})
+						jsonArray.push(object)
+					}
+				})
+				console.log(jsonArray)
+				var jsonString = JSON.stringify(jsonArray)
+				$("#jsonOutput").val(jsonString)
 			}
-			catch(err) {
-				$scope.error = true;
-				$scope.error_name = err.name;
-				$scope.error_message = err.message;
-			}
-		}
+		});
 	})
 </script>
