@@ -17,11 +17,14 @@
 					<textarea rows="20" cols="65" id="jsonIntput" placeholder="Enter json, key='name_of _col' value='row_value',  Enter arrray of objects in case of multiple rows"></textarea>
 				</div>
 				<div class="row">
-					<div class="col-md-6 col-sm-6 col-lg-6">
-						<button class="btn btn-primary" id="convertJsonToCsv">Convert and download ( CSV )</button>
+					<div class="col-md-4 col-sm-4 col-lg-4">
+						<button class="btn btn-primary convertjson" id="csv">Download ( .csv )</button>
 					</div>
-					<div class="col-md-6 col-sm-6 col-lg-6">
-						<button class="btn btn-primary" id="convertJsonToExcel">Convert and download ( Excel )</button>
+					<div class="col-md-4 col-sm-4 col-lg-4">
+						<button class="btn btn-primary convertjson" id="xls">Download ( .xls )</button>
+					</div>
+					<div class="col-md-4 col-sm-4 col-lg-4">
+						<button class="btn btn-primary convertjson" id="xlsx">Download ( .xlsx )</button>
 					</div>
 				</div>
 			</div>
@@ -40,7 +43,7 @@
 </body>
 </html>
 <script type="text/javascript">
-	$("#convertJsonToCsv").click(function() {
+	$(".convertjson").click(function() {
 	 	console.log("click")
 	 	var jsonString = $("#jsonIntput").val()
 	 	var json = JSON.parse(jsonString)
@@ -59,37 +62,12 @@
 		let blob = new Blob([csv]);
 		let a = window.document.createElement("a");
 		a.href = window.URL.createObjectURL(blob, {type: "text/plain"});
-		a.download = "convertedcsv.csv";
+		a.download = "converted."+event.target.id;
 		document.body.appendChild(a);
 		a.click();
 		document.body.removeChild(a);
 	});
 
-
-	$("#convertJsonToExcel").click(function() {
-	 	console.log("click")
-	 	var jsonString = $("#jsonIntput").val()
-	 	var json = JSON.parse(jsonString)
-
-	 	var jsonArray = []
-	 	if(Array.isArray(json)){
-	 		json.map((row, key)=>{
-	 			jsonArray.push(row)
-	 		})
-	 	}
-	 	else{
-	 		jsonArray.push(json)
-	 	}
-	 	console.log(jsonArray)
- 		let csv = Papa.unparse(jsonArray, {download: true});
-		let blob = new Blob([csv]);
-		let a = window.document.createElement("a");
-		a.href = window.URL.createObjectURL(blob, {type: "text/plain"});
-		a.download = "convertedcsv.xlsx";
-		document.body.appendChild(a);
-		a.click();
-		document.body.removeChild(a);
-	});
 
 	$("#fileUpload").change(function(event){
 		console.log(event.target.files[0])
