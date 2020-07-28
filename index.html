@@ -8,20 +8,21 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.2.0/papaparse.min.js"></script>
 <body>
 	<div class="container">
-		<center><h1>Converter (csv/json)</h1></center>
+		<center><h1>Converter CSV/EXCEL < = > JSON</h1></center>
 		<div class="row">
 			<br/>
 			<div class="col-md-6 col-sm-12 col-lg-6">
-				<h2>Json to csv converter</h2>
+				<h2>Json to csv/excel converter</h2>
 				<div class="row">
 					<textarea rows="20" cols="65" id="jsonIntput" placeholder="Enter json, key='name_of _col' value='row_value',  Enter arrray of objects in case of multiple rows"></textarea>
 				</div>
 				<div class="row">
-					<button class="btn btn-primary" id="convertJsonToCsv">Convert and download</button>
+					<button class="btn btn-primary" id="convertJsonToCsv">Convert and download ( CSV )</button>
+					<button class="btn btn-primary" id="convertJsonToExcel">Convert and download ( Excel )</button>
 				</div>
 			</div>
 			<div class="col-md-6 col-sm-12 col-lg-6">
-				<h2>Csv to json converter</h2>
+				<h2>Csv/excel to json converter</h2>
 				<div class="row">
 					<input type="file" id="fileUpload">Upload</input>
 				</div>
@@ -54,6 +55,32 @@
 		let a = window.document.createElement("a");
 		a.href = window.URL.createObjectURL(blob, {type: "text/plain"});
 		a.download = "convertedcsv.csv";
+		document.body.appendChild(a);
+		a.click();
+		document.body.removeChild(a);
+	});
+
+
+	$("#convertJsonToExcel").click(function() {
+	 	console.log("click")
+	 	var jsonString = $("#jsonIntput").val()
+	 	var json = JSON.parse(jsonString)
+
+	 	var jsonArray = []
+	 	if(Array.isArray(json)){
+	 		json.map((row, key)=>{
+	 			jsonArray.push(row)
+	 		})
+	 	}
+	 	else{
+	 		jsonArray.push(json)
+	 	}
+	 	console.log(jsonArray)
+ 		let csv = Papa.unparse(jsonArray, {download: true});
+		let blob = new Blob([csv]);
+		let a = window.document.createElement("a");
+		a.href = window.URL.createObjectURL(blob, {type: "text/plain"});
+		a.download = "convertedcsv.xlsx";
 		document.body.appendChild(a);
 		a.click();
 		document.body.removeChild(a);
